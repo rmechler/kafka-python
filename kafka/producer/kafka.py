@@ -539,7 +539,7 @@ class KafkaProducer(object):
             'Null messages require kafka >= 0.8.1')
         assert not (value is None and key is None), 'Need at least one: key or value'
         key_bytes = value_bytes = None
-        headers = [(key, value) for key, value in headers.items()]
+        headers = [(k, v) for k, v in headers.items()]
         try:
             # first make sure the metadata for the topic is
             # available

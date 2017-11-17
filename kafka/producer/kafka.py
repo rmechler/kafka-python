@@ -503,7 +503,7 @@ class KafkaProducer(object):
             return LegacyRecordBatchBuilder.estimate_size_in_bytes(
                 magic, self.config['compression_type'], key, value)
 
-    def send(self, topic, value=None, key=None, partition=None, timestamp_ms=None):
+    def send(self, topic, value=None, key=None, partition=None, timestamp_ms=None, headers=[]):
         """Publish a message to a topic.
 
         Arguments:
@@ -552,7 +552,7 @@ class KafkaProducer(object):
             partition = self._partition(topic, partition, key, value,
                                         key_bytes, value_bytes)
 
-            message_size = self._estimate_size_in_bytes(key, value)
+            message_size = self._estimate_size_in_bytes(key, value, headers)
             self._ensure_valid_record_size(message_size)
 
             tp = TopicPartition(topic, partition)
@@ -560,7 +560,7 @@ class KafkaProducer(object):
             result = self._accumulator.append(tp, timestamp_ms,
                                               key_bytes, value_bytes,
                                               self.config['max_block_ms'],
-                                              estimated_size=message_size)
+                                              estimated_size=message_size, headers=headers)
             future, batch_is_full, new_batch_created = result
             if batch_is_full or new_batch_created:
                 log.debug("Waking up the sender since %s is either full or"

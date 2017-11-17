@@ -55,8 +55,8 @@ class ProducerBatch(object):
     def record_count(self):
         return self.records.next_offset()
 
-    def try_append(self, timestamp_ms, key, value):
-        metadata = self.records.append(timestamp_ms, key, value)
+    def try_append(self, timestamp_ms, key, value, headers=[]):
+        metadata = self.records.append(timestamp_ms, key, value, headers=headers)
         if metadata is None:
             return None
 
@@ -197,7 +197,7 @@ class RecordAccumulator(object):
         self._drain_index = 0
 
     def append(self, tp, timestamp_ms, key, value, max_time_to_block_ms,
-               estimated_size=0):
+               estimated_size=0, headers=[]):
         """Add a record to the accumulator, return the append result.
 
         The append result will contain the future metadata, and flag for
@@ -231,7 +231,7 @@ class RecordAccumulator(object):
                 dq = self._batches[tp]
                 if dq:
                     last = dq[-1]
-                    future = last.try_append(timestamp_ms, key, value)
+                    future = last.try_append(timestamp_ms, key, value, headers=headers)
                     if future is not None:
                         batch_is_full = len(dq) > 1 or last.records.is_full()
                         return future, batch_is_full, False
@@ -246,7 +246,7 @@ class RecordAccumulator(object):
 
                 if dq:
                     last = dq[-1]
-                    future = last.try_append(timestamp_ms, key, value)
+                    future = last.try_append(timestamp_ms, key, value, headers=headers)
                     if future is not None:
                         # Somebody else found us a batch, return the one we
                         # waited for! Hopefully this doesn't happen often...
@@ -261,7 +261,7 @@ class RecordAccumulator(object):
                 )
 
                 batch = ProducerBatch(tp, records, buf)
-                future = batch.try_append(timestamp_ms, key, value)
+                future = batch.try_append(timestamp_ms, key, value, headers=headers)
                 if not future:
                     raise Exception()
 

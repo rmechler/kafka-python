@@ -29,7 +29,7 @@ READ_COMMITTED = 1
 
 ConsumerRecord = collections.namedtuple("ConsumerRecord",
     ["topic", "partition", "offset", "timestamp", "timestamp_type",
-     "key", "value", "checksum", "serialized_key_size", "serialized_value_size"])
+     "key", "value", "checksum", "serialized_key_size", "serialized_value_size", "headers"])
 
 
 CompletedFetch = collections.namedtuple("CompletedFetch",
@@ -470,7 +470,7 @@ class Fetcher(six.Iterator):
                     yield ConsumerRecord(
                         tp.topic, tp.partition, record.offset, record.timestamp,
                         record.timestamp_type, key, value, record.checksum,
-                        key_size, value_size)
+                        key_size, value_size, record.headers)
 
                 batch = records.next_batch()
 

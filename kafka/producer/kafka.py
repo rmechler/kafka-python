@@ -503,7 +503,7 @@ class KafkaProducer(object):
             return LegacyRecordBatchBuilder.estimate_size_in_bytes(
                 magic, self.config['compression_type'], key, value)
 
-    def send(self, topic, value=None, key=None, partition=None, timestamp_ms=None, headers=[]):
+    def send(self, topic, value=None, key=None, partition=None, timestamp_ms=None, headers={}):
         """Publish a message to a topic.
 
         Arguments:
@@ -526,6 +526,7 @@ class KafkaProducer(object):
                 key_serializer.
             timestamp_ms (int, optional): epoch milliseconds (from Jan 1 1970 UTC)
                 to use as the message timestamp. Defaults to current time.
+            headers (dict, optional): message headers as a dictionary {str: bytes}
 
         Returns:
             FutureRecordMetadata: resolves to RecordMetadata
@@ -538,6 +539,7 @@ class KafkaProducer(object):
             'Null messages require kafka >= 0.8.1')
         assert not (value is None and key is None), 'Need at least one: key or value'
         key_bytes = value_bytes = None
+        headers = [(key, value) for key, value in headers.items()]
         try:
             # first make sure the metadata for the topic is
             # available

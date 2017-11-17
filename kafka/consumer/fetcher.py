@@ -470,7 +470,8 @@ class Fetcher(six.Iterator):
                     yield ConsumerRecord(
                         tp.topic, tp.partition, record.offset, record.timestamp,
                         record.timestamp_type, key, value, record.checksum,
-                        key_size, value_size, record.headers)
+                        key_size, value_size,
+                        {header[0]: header[1] for header in record.headers})
 
                 batch = records.next_batch()
 

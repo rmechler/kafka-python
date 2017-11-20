@@ -175,6 +175,8 @@ class KafkaClient(object):
         'sasl_kerberos_service_name': 'kafka',
     }
     API_VERSIONS = [
+        (0, 11, 0),
+        (0, 11),
         (0, 10, 1),
         (0, 10, 0),
         (0, 10),
